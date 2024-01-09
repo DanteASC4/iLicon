@@ -8,7 +8,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "biome check --apply ./src",
-    "build": "tsup src/index.ts --format cjs,esm --resolve --minify --clean --sourcemap --dts"
+    "build": "tsup src/index.ts --format cjs,esm --minify --dts"
   },
   "keywords": [],
   "author": "",

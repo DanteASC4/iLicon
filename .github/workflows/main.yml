@@ -18,5 +18,4 @@ jobs:
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
-      # Add lint here too
-      - run: pnpm run build
+      - run: pnpm run lint && pnpm run build
