@@ -3,7 +3,7 @@ type LiconOptions = {
   wrapperClass?: string;
   imgClass?: string;
   target?: string[];
-  fallbackIcon?: { domain: string; fallback: string }[]; // URL
+  fallbackIcons?: { domain: string; fallbackIcon: string }[]; // URL
   injectLiconStyles?: boolean;
   position?: 'start' | 'end';
   root?: HTMLElement;
@@ -33,6 +33,11 @@ const staticGoogleIcons = {
   google_mail: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico',
   google_forms:
     'https://ssl.gstatic.com/docs/spreadsheets/forms/favicon_qp2.png',
+  google_maps:
+    'https://www.google.com/images/branding/product/ico/maps_32dp.ico',
+  google_custom_map: '//www.gstatic.com/mapspro/images/favicon-001.ico',
+  google_drive:
+    'https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png',
 };
 
 const isLink = (str: string) =>
@@ -64,20 +69,16 @@ const toIconUrlAsync = async (url: string, fallback?: string) => {
   const { hostname } = urlObj;
 
   let iUrl = `https://icons.duckduckgo.com/ip3/${hostname}.ico`;
-
   const asB64 = await b64FromUrl(iUrl);
-
   if (asB64 === BAD_DDG_B64) {
     iUrl = `https://www.google.com/s2/favicons?domain=${hostname}`;
   }
 
   const asB64Google = await b64FromUrl(iUrl);
-
   if (asB64Google === BAD_GOOGLE_B64) {
     if (fallback) {
       return fallback;
     }
-
     return FALLBACK_ICON;
   }
 
@@ -251,10 +252,10 @@ function grabLinks(
   return links;
 }
 
-async function licon(opts: LiconOptions) {
+export async function iLicon(opts: LiconOptions) {
   // const classes = opts?.classes ?? null;
   const target = opts?.target ?? null;
-  const fallbackIcon = opts?.fallbackIcon ?? undefined;
+  const fallbackIcons = opts?.fallbackIcons ?? undefined;
   const injectLiconStyles = opts?.injectLiconStyles ?? true;
   const transformer = opts?.transformer ?? defaultTransformer;
   const wrapperClass = opts?.wrapperClass ?? 'ilicon_wrapper';
@@ -281,6 +282,40 @@ async function licon(opts: LiconOptions) {
   console.log(links);
 
   const iconLinks = links.map((info) => {
+    const url = info[1];
+    if (fallbackIcons) {
+      const urlObj = new URL(url);
+      const { hostname } = urlObj;
+      const fallback = fallbackIcons.find((i) => i.domain === hostname);
+      if (fallback) {
+        return [info[0], fallback.fallbackIcon] as const;
+      }
+    } else if (url.includes('google.com')) {
+      if (url.includes('mail.google.com')) {
+        return [info[0], staticGoogleIcons.google_mail] as const;
+      }
+      if (url.includes('docs.google.com/spreadsheets')) {
+        return [info[0], staticGoogleIcons.google_sheets] as const;
+      }
+      if (url.includes('docs.google.com/document')) {
+        return [info[0], staticGoogleIcons.google_docs] as const;
+      }
+      if (url.includes('docs.google.com/presentation')) {
+        return [info[0], staticGoogleIcons.google_slides] as const;
+      }
+      if (url.includes('docs.google.com/forms')) {
+        return [info[0], staticGoogleIcons.google_forms] as const;
+      }
+      if (url.includes('drive.google.com')) {
+        return [info[0], staticGoogleIcons.google_drive] as const;
+      }
+      if (url.includes('maps.google.com')) {
+        return [info[0], staticGoogleIcons.google_maps] as const;
+      }
+      if (url.includes('google.com/maps')) {
+        return [info[0], staticGoogleIcons.google_custom_map] as const;
+      }
+    }
     const iconUrl = toIconUrl(info[1]);
     return [info[0], iconUrl] as const;
   });
@@ -289,5 +324,3 @@ async function licon(opts: LiconOptions) {
     transformer(ele, url, position, wrapperClass, imgClass);
   }
 }
-
-export default licon;
