@@ -9,9 +9,11 @@ A small package for fetching site favicons & nicely displaying them inline.
 ## Quick Demo
 
 An embedded github gist, containing some anchor tags:
+
 ![iLicon no call demo](https://i.imgur.com/rDuYEhR.png)
 
 After calling `iLicon` with `0` config on the same page:
+
 ![iLicon call demo](https://i.imgur.com/GXqnUxp.png)
 
 ## Table of Contents
