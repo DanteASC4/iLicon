@@ -1,5 +1,11 @@
 # ilicon
 
+## 1.0.1
+
+### Patch Changes
+
+- 9b904e0: Attempting to fix some misunderstandings with the npm config
+
 ## 1.0.0
 
 ### Major Changes
