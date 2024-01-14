@@ -204,7 +204,7 @@ function grabLinks(
   return links;
 }
 
-export async function iLicon(opts: LiconOptions) {
+export function iLicon(opts: LiconOptions) {
   // const classes = opts?.classes ?? null;
   const root = opts?.root ?? document.body;
   const skipIDs = opts?.skipIDs ?? [];
@@ -232,7 +232,6 @@ export async function iLicon(opts: LiconOptions) {
   }
 
   const links = grabLinks(root, skipObj);
-  console.log(links);
 
   const iconLinks = links.map((info) => {
     const url = info[1];
