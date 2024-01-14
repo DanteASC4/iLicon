@@ -1,9 +1,8 @@
 type LiconOptions = {
-  check?: boolean;
   wrapperClass?: string;
   imgClass?: string;
   target?: string[];
-  fallbackIcons?: { domain: string; fallbackIcon: string }[]; // URL
+  setIcons?: { domain: string; icon: string }[]; // URL
   injectLiconStyles?: boolean;
   position?: 'start' | 'end';
   root?: HTMLElement;
@@ -98,11 +97,6 @@ function defaultTransformer(
   wrapperClass = 'ilicon_wrapper',
   imgClass = 'ilicon_img'
 ) {
-  // Given an anchor tag and a link, we should end up with something like this:
-  // <span><img src="link" /><a>original element</a></span>
-  // <a class="wrapper-class" href="original_ele_link"><img class="img-class" src="icon_link" />original text</a>
-  // Given an anchor tag and a link, we should end up with something like this:
-
   const isAnchor = element.nodeName === 'A';
   if (isAnchor) {
     // If we're working with an anchor tag, we will insert an image and add the wrapper class to the anchor tag
@@ -118,23 +112,30 @@ function defaultTransformer(
     return;
   }
 
-  const wrapper = document.createElement('span');
-  wrapper.classList.add(wrapperClass);
-  const img = document.createElement('img');
-  img.classList.add(imgClass);
-  img.src = url;
-  if (pos === 'start') {
-    wrapper.appendChild(img);
-    wrapper.appendChild(element);
-  } else {
-    wrapper.appendChild(element);
-    wrapper.appendChild(img);
-  }
-  element.replaceWith(wrapper);
+  //* FIXME Non-anchor tags will be a bit more complex. For now commenting this out.
+  // const wrapper = document.createElement('span');
+  // wrapper.classList.add(wrapperClass);
+  // const img = document.createElement('img');
+  // img.classList.add(imgClass);
+  // img.src = url;
+  // if (pos === 'start') {
+  //   wrapper.appendChild(img);
+  //   wrapper.appendChild(element);
+  // } else {
+  //   wrapper.appendChild(element);
+  //   wrapper.appendChild(img);
+  // }
+  // element.replaceWith(wrapper);
 }
 
 function injectStyles() {
+  // Check if styles are already injected
+  const existingStyles = document.getElementById('ilicon-styles');
+  if (existingStyles) {
+    return;
+  }
   const style = document.createElement('style');
+  style.id = 'ilicon-styles';
   style.innerHTML = `
   .ilicon_wrapper {
     display: inline-flex;
@@ -254,22 +255,23 @@ function grabLinks(
 
 export async function iLicon(opts: LiconOptions) {
   // const classes = opts?.classes ?? null;
-  const target = opts?.target ?? null;
-  const fallbackIcons = opts?.fallbackIcons ?? undefined;
-  const injectLiconStyles = opts?.injectLiconStyles ?? true;
-  const transformer = opts?.transformer ?? defaultTransformer;
-  const wrapperClass = opts?.wrapperClass ?? 'ilicon_wrapper';
-  const imgClass = opts?.imgClass ?? 'ilicon_img';
-  const position = opts?.position ?? 'start';
   const root = opts?.root ?? document.body;
   const skipIDs = opts?.skipIDs ?? [];
   const skipClasses = opts?.skipClasses ?? [];
+  const injectiLiconStyles = opts?.injectLiconStyles ?? true;
+  const wrapperClass = opts?.wrapperClass ?? 'ilicon_wrapper';
+  const imgClass = opts?.imgClass ?? 'ilicon_img';
+  const setIcons = opts?.setIcons ?? undefined;
+  const transformer = opts?.transformer ?? defaultTransformer;
+  const position = opts?.position ?? 'start';
+  const target = opts?.target ?? undefined;
   const skipObj =
-    opts?.skipIDs || opts?.skipClasses
+    (opts?.skipIDs && skipIDs.length > 0) ||
+    (opts?.skipClasses && skipClasses.length > 0)
       ? { ids: skipIDs, classes: skipClasses }
       : undefined;
 
-  if (injectLiconStyles) {
+  if (injectiLiconStyles) {
     injectStyles();
   }
 
@@ -283,12 +285,12 @@ export async function iLicon(opts: LiconOptions) {
 
   const iconLinks = links.map((info) => {
     const url = info[1];
-    if (fallbackIcons) {
+    if (setIcons) {
       const urlObj = new URL(url);
       const { hostname } = urlObj;
-      const fallback = fallbackIcons.find((i) => i.domain === hostname);
-      if (fallback) {
-        return [info[0], fallback.fallbackIcon] as const;
+      const found = setIcons.find((i) => i.domain === hostname);
+      if (found) {
+        return [info[0], found.icon] as const;
       }
     } else if (url.includes('google.com')) {
       if (url.includes('mail.google.com')) {
