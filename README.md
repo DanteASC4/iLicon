@@ -16,6 +16,20 @@ After calling `iLicon` with `0` config on the same page:
 
 ## Table of Contents
 
+- [iLicon](#ilicon)
+  - [Quick Demo](#quick-demo)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Node](#node)
+    - [CDN](#cdn)
+  - [Usage](#usage)
+    - [Options](#options)
+    - [Default Styles](#default-styles)
+    - [Transformer](#transformer)
+  - [Contributing](#contributing)
+  - [Future considerations / Potential features](#future-considerations--potential-features)
+
 ## Features
 
 Automatically fetches favicons for links and displays them inline. With plenty of configuration options and some potential future features.
